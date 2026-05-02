@@ -1,174 +1,212 @@
-# VASNet: Video Attention-based Summarization Network
+# Video Summarization Repository
 
-A PyTorch implementation of **VASNet** (Fajtl et al., 2019) for automatic video summarization using self-attention mechanisms.
+This repository collects three generations of video summarization models:
 
-## Overview
+- **VASNet** as the classic self-attention baseline.
+- **FullTransNet** as the Transformer-based attention baseline.
+- **MambaVSum** as our proposed model for efficient multimodal summarization.
 
-VASNet uses a self-attention mechanism to determine frame importance in videos, generating concise video summaries. This implementation follows the exact architecture and hyperparameters from the original paper.
+The main goal of the project is to compare attention-heavy summarization methods with a newer linear-time sequence model. In particular, **MambaVSum is the proposed model** in this repository and is designed to scale in **$O(N)$** time with respect to sequence length, avoiding the quadratic self-attention bottleneck used by older techniques.
 
-**Paper:** *Summarizing Videos with Attention* (Fajtl et al., ACCV 2018 Workshop)
+## Models
 
-## Features
+### 1. VASNet
 
-- Self-attention based frame importance scoring
-- 0/1 Knapsack algorithm for optimal summary generation
-- 5-fold cross-validation evaluation
-- Mixed precision training (AMP) support
-- Cosine learning rate scheduling with warmup
-- Compatible with standard ECCV16 benchmark datasets
+VASNet is the original attention-based summarization network implemented in [model.py](model.py). It follows the paper _Summarizing Videos with Attention_ and uses a single-head multiplicative self-attention block to score frame importance.
 
-## Requirements
+Core flow:
 
-```
-torch>=2.0
-numpy
-h5py
+```text
+Input frame features -> self-attention -> residual + layer norm -> 2-layer MLP -> frame scores
 ```
 
-Install dependencies:
+Key details:
+
+- Input: GoogLeNet pool5 features with shape `(1, N, 1024)`
+- Attention: learnable `U`, `V`, and `C` projections
+- Output: per-frame importance scores in `[0, 1]`
+- Summary generation: 0/1 knapsack over selected shots
+
+### 2. FullTransNet
+
+FullTransNet is the Transformer-based baseline located under [fulltransnet/](fulltransnet/). It combines local and global attention inside an encoder-decoder architecture.
+
+Core flow:
+
+```text
+Video embedding -> local-global encoder -> decoder attention -> score projection
+```
+
+Key details:
+
+- Uses Local-Global Multi-Head Attention in the encoder
+- Uses standard multi-head attention in the decoder
+- Relies on change points / shot boundaries for global context
+- Serves as a stronger but more expensive attention baseline
+
+### 3. MambaVSum
+
+MambaVSum is the proposed model in [mambavsum/](mambavsum/). It replaces quadratic attention with a bidirectional state-space encoder and adds multimodal fusion for visual and audio inputs.
+
+Core flow:
+
+```text
+Visual + audio features -> multimodal fusion -> BiMamba encoder -> multi-scale pooling -> changepoint attention -> score regressor
+```
+
+Key details:
+
+- Supports GoogLeNet, CLIP, and multimodal CLIP + audio inputs
+- Uses bidirectional Mamba blocks for temporal modeling
+- Includes multi-scale temporal pooling at 1x, 2x, and 4x scales
+- Adds sparse change-point attention for shot-level structure
+- Produces frame-level importance scores for knapsack-based summary creation
+- Designed for linear-time sequence modeling, or **$O(N)$** with respect to video length
+
+## Why MambaVSum
+
+Older video summarization methods usually depend on full self-attention or Transformer-style attention matrices. Those approaches are powerful, but their cost grows quadratically with sequence length, which becomes expensive for long videos.
+
+MambaVSum addresses that limitation by:
+
+- replacing full self-attention with state-space sequence modeling,
+- using bidirectional context instead of a single left-to-right scan,
+- combining visual and audio evidence,
+- and adding multi-scale temporal pooling so the model sees frame-, segment-, and scene-level structure.
+
+That makes MambaVSum the best fit in this repository when the goal is efficient video summarization on longer sequences.
+
+## Repository Layout
+
+```text
+Video_Summarization/
+├── model.py                 # VASNet baseline
+├── train.py                 # VASNet training script
+├── evaluate.py              # VASNet evaluation
+├── dataset.py               # Dataset loading for ECCV16 features
+├── knapsack.py              # Summary selection logic
+├── fulltransnet/            # FullTransNet implementation
+├── mambavsum/               # Proposed MambaVSum implementation
+└── README.md                # Project overview
+```
+
+## VASNet Details
+
+VASNet is the cleanest baseline in the repository. It uses learned linear projections to compute a soft attention matrix over all frames, then aggregates context with a residual block and regresses frame importance scores.
+
+Main characteristics:
+
+- single-head soft self-attention
+- residual connection with layer normalization
+- two-layer MLP regressor
+- trained with 5-fold cross validation
+- summary extraction with 0/1 knapsack under a fixed summary budget
+
+## FullTransNet Details
+
+FullTransNet expands the baseline into an encoder-decoder Transformer for video summarization.
+
+Main characteristics:
+
+- positional encoding for temporal order
+- local-global attention in the encoder
+- decoder self-attention and encoder-decoder attention
+- change-point aware masking
+- heavier than VASNet, but more expressive than a simple single-head attention model
+
+## MambaVSum Details
+
+MambaVSum is the proposed model and the main efficiency-focused contribution of the repository.
+
+Main characteristics:
+
+- multimodal fusion of visual and audio features
+- BiMamba encoder for temporal dependency modeling
+- multi-scale pooling to capture short- and long-range structure
+- change-point sparse attention for boundary-aware refinement
+- lightweight score regressor for frame importance prediction
+
+Because the sequence model is linear-time, MambaVSum is intended for longer videos where full attention becomes costly.
+
+## Dataset Setup
+
+The repository uses pre-extracted ECCV16-style HDF5 features for the VASNet and FullTransNet baselines.
+
+Supported datasets:
+
+- TVSum
+- SumMe
+- OVP
+- YouTube
+
+The default configuration uses TVSum.
+
+## Quick Start
+
+### Install Dependencies
+
 ```bash
 pip install torch numpy h5py
 ```
 
-## Dataset Setup
+For the MambaVSum pipeline, additional packages may be required depending on which feature extractor you use:
 
-This implementation uses pre-extracted GoogLeNet pool5 features in HDF5 format (ECCV16 standard).
+- `tqdm`
+- `open_clip_torch`
+- `opencv-python`
+- `torchaudio`
 
-### Supported Datasets
-- **TVSum** - 50 videos (recommended)
-- **SumMe** - 25 videos
-- **OVP** - 50 videos
-- **YouTube** - 39 videos
+### Train VASNet
 
-### Download
-Download the preprocessed datasets from:
-[https://zenodo.org/record/4884870/files/datasets.tar](https://zenodo.org/record/4884870/files/datasets.tar)
-
-Extract to the `data/` directory:
-```
-data/
-├── eccv16_dataset_tvsum_google_pool5.h5
-├── eccv16_dataset_summe_google_pool5.h5
-├── eccv16_dataset_ovp_google_pool5.h5
-└── eccv16_dataset_youtube_google_pool5.h5
+```bash
+python train.py
 ```
 
-## Usage
+### Run FullTransNet
 
-### Training
+Use the scripts inside the [fulltransnet/](fulltransnet/) folder. That subproject has its own training and evaluation entry points.
 
-1. **Configure the dataset** in `config.py`:
-   ```python
-   dataset_name = "tvsum"  # or "summe", "ovp", "youtube"
-   ```
+### Run MambaVSum
 
-2. **Run training:**
-   ```bash
-   python train.py
-   ```
+Use the scripts inside the [mambavsum/](mambavsum/) folder for the proposed multimodal model.
 
-Training runs 5-fold cross-validation automatically. Best models for each split are saved to `checkpoints/`.
+## Core Baseline Configuration
 
-### Configuration
+Edit [config.py](config.py) to control the VASNet baseline:
 
-Edit `config.py` to adjust hyperparameters:
+| Parameter      |   Default | Description                        |
+| -------------- | --------: | ---------------------------------- |
+| `dataset_name` | `"tvsum"` | Dataset to use                     |
+| `input_size`   |    `1024` | GoogLeNet pool5 feature dimension  |
+| `hidden_size`  |    `1024` | Hidden dimension for the regressor |
+| `dropout`      |     `0.5` | Dropout probability                |
+| `attn_scale`   |    `0.06` | Attention scaling factor           |
+| `lr`           |    `5e-5` | Learning rate                      |
+| `l2_reg`       |    `1e-5` | L2 regularization weight           |
+| `epochs`       |     `300` | Maximum training epochs            |
+| `n_splits`     |       `5` | Number of cross-validation folds   |
+| `summary_rate` |    `0.15` | Maximum summary length             |
 
-| Parameter | Default | Description |
-|-----------|---------|-------------|
-| `dataset_name` | `"tvsum"` | Dataset to use |
-| `input_size` | `1024` | GoogLeNet pool5 feature dimension |
-| `hidden_size` | `1024` | Model hidden dimension |
-| `dropout` | `0.5` | Dropout probability |
-| `attn_scale` | `0.06` | Attention scaling factor |
-| `lr` | `5e-5` | Learning rate |
-| `l2_reg` | `1e-5` | L2 regularization weight |
-| `epochs` | `300` | Maximum training epochs |
-| `n_splits` | `5` | Number of cross-validation folds |
-| `summary_rate` | `0.15` | Maximum summary length (15% of video) |
+## Inference and Summary Generation
 
-### Loading a Trained Model
-
-```python
-import torch
-from model import VASNet
-from config import Config
-
-# Load configuration and model
-cfg = Config()
-model = VASNet(cfg)
-
-# Load checkpoint
-checkpoint = torch.load("checkpoints/best_split0.pt")
-model.load_state_dict(checkpoint["model_state_dict"])
-model.eval()
-
-# Run inference
-# features: (1, N, 1024) tensor of GoogLeNet pool5 features
-scores, attention = model(features)
-# scores: (N,) importance scores in [0, 1]
-# attention: (N, N) attention weight matrix
-```
-
-### Generating Video Summaries
+After scoring frames, summary extraction uses the 0/1 knapsack formulation to select the best set of shots within the summary budget.
 
 ```python
 from knapsack import generate_summary
 
-# After getting scores from the model
 summary = generate_summary(
     pred_scores=scores.cpu().numpy(),
-    cps=change_points,      # (K, 2) segment boundaries
-    n_frames=n_frames,      # total original frames
-    nfps=n_frame_per_seg,   # (K,) frames per segment
-    picks=picks,            # (N,) subsampled frame indices
-    proportion=0.15         # max 15% of video length
+    cps=change_points,
+    n_frames=n_frames,
+    nfps=n_frame_per_seg,
+    picks=picks,
+    proportion=0.15,
 )
-# summary: binary array (n_frames,) where 1 = selected frame
-```
-
-## Project Structure
-
-```
-vasnet/
-├── config.py      # Configuration and hyperparameters
-├── model.py       # VASNet model architecture
-├── train.py       # Training script with 5-fold CV
-├── evaluate.py    # F-score evaluation metrics
-├── dataset.py     # HDF5 dataset loading
-├── knapsack.py    # Knapsack summary generation
-├── checkpoints/   # Saved model weights
-├── data/          # Dataset HDF5 files
-└── results.txt    # Training results
-```
-
-## Expected Results
-
-Following the paper's evaluation protocol:
-
-| Dataset | Target F-score | This Implementation |
-|---------|----------------|---------------------|
-| TVSum   | ~61.4%         | ~56-61%             |
-| SumMe   | ~49.7%         | ~47-52%             |
-
-Results may vary slightly due to random splits.
-
-## Model Architecture
-
-```
-Input: (1, N, 1024) - GoogLeNet pool5 features
-          ↓
-    Self-Attention (Eq. 1-5)
-          ↓
-    Residual + LayerNorm
-          ↓
-    2-Layer MLP Regressor
-          ↓
-Output: (N,) frame importance scores
 ```
 
 ## Citation
 
-If you use this code, please cite the original VASNet paper:
+If you use the baseline VASNet implementation, cite the original paper:
 
 ```bibtex
 @inproceedings{fajtl2019summarizing,
@@ -181,6 +219,8 @@ If you use this code, please cite the original VASNet paper:
 }
 ```
 
+For the proposed MambaVSum model, the repository currently uses the project report and code as the primary reference implementation.
+
 ## License
 
-This implementation is for research purposes. Please refer to the original paper and datasets for licensing information.
+This repository is intended for research use. Please check the original papers and dataset licenses before redistribution.
