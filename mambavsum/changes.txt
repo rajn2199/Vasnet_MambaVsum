@@ -1,0 +1,21 @@
+Training Results ✅
+Model	MambaVSum (multimodal: CLIP 768-d + Audio 128-d)
+Dataset	TVSum (50 videos, 5-fold cross-validation)
+Architecture	BiMamba encoder (d=128, 2 layers) + Multi-scale pooling + Changepoint attention
+Parameters	756,865 trainable
+Training Time	~10 minutes total (~4s/epoch × 30 epochs × 5 splits)
+GPU	RTX 3050 Laptop (4.3 GB)
+Per-Split F-scores
+Split	Best F-score
+1	56.38%
+2	57.79%
+3	52.82%
+4	55.12%
+5	59.22%
+Mean	56.27% ± 2.20%
+
+
+What was fixed to make training work
+Vectorized SSM scan — Replaced the sequential Python for-loop (700+ iterations per call) with a chunked cumulative product approach (22 iterations), giving ~20x speedup
+Reduced model size — Tuned d_model=128, d_state=8, expand=1, layers=2 for your RTX 3050 (from 7.1M → 756K params)
+Added progress logging — Per-epoch timing and loss output so training doesn't appear stuck

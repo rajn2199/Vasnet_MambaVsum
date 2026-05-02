@@ -1,0 +1,21 @@
+delayers: 6
+device: cuda
+dff: 2048
+dim_mid: 64
+enlayers: 6
+length: 1536
+log_file: log_tvsum.txt
+loss: bce
+lr: 0.001
+max_epoch: 10
+model: encoder-decoder
+model_dir: ./model_save/tvsum
+num_feature: 1024
+num_head: 8
+seed: 2021
+smooth: 100
+splits:
+- ./splits/tvsum.yml
+stride: 1
+weight_decay: 0.0001
+window_size: 16

@@ -1,0 +1,6 @@
+Model    : MambaVSum
+Dataset  : tvsum
+Features : multimodal
+Config   : d_model=128, layers=2
+Per-split: [56.37982531264425, 57.78837022185325, 52.8217958509922, 55.12038021534682, 59.21599964052439]
+Mean F   : 56.27% ± 2.20%

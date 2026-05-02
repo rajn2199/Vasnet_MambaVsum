@@ -1,0 +1,57 @@
+[2026-04-20 23:33:07,821] Namespace(model='encoder-decoder', device='cuda', seed=2021, length=1536, window_size=16, dff=2048, stride=1, num_head=8, num_feature=1024, dim_mid=64, enlayers=6, delayers=6, loss='bce', smooth=100, splits=['./splits/tvsum.yml'], max_epoch=10, lr=0.001, weight_decay=0.0001, model_dir='./model_save/tvsum', log_file='log_tvsum.txt')
+[2026-04-20 23:33:07,834] Start training on tvsum: split 0
+[2026-04-20 23:34:08,734]  tvsum:0 Epoch: 0/10 test F-score cur/max: 0.5177/0.5177
+[2026-04-20 23:35:06,276]  tvsum:0 Epoch: 1/10 test F-score cur/max: 0.5002/0.5177
+[2026-04-20 23:36:00,579]  tvsum:0 Epoch: 2/10 test F-score cur/max: 0.5168/0.5177
+[2026-04-20 23:36:57,223]  tvsum:0 Epoch: 3/10 test F-score cur/max: 0.4984/0.5177
+[2026-04-20 23:37:55,470]  tvsum:0 Epoch: 4/10 test F-score cur/max: 0.4977/0.5177
+[2026-04-20 23:38:53,069]  tvsum:0 Epoch: 5/10 test F-score cur/max: 0.5200/0.5200
+[2026-04-20 23:39:52,187]  tvsum:0 Epoch: 6/10 test F-score cur/max: 0.5183/0.5200
+[2026-04-20 23:40:47,081]  tvsum:0 Epoch: 7/10 test F-score cur/max: 0.5028/0.5200
+[2026-04-20 23:41:44,804]  tvsum:0 Epoch: 8/10 test F-score cur/max: 0.5168/0.5200
+[2026-04-20 23:42:41,327]  tvsum:0 Epoch: 9/10 test F-score cur/max: 0.4948/0.5200
+[2026-04-20 23:42:41,348] Start training on tvsum: split 1
+[2026-04-20 23:43:19,807]  tvsum:1 Epoch: 0/10 test F-score cur/max: 0.4914/0.4914
+[2026-04-20 23:43:55,920]  tvsum:1 Epoch: 1/10 test F-score cur/max: 0.5124/0.5124
+[2026-04-20 23:44:33,790]  tvsum:1 Epoch: 2/10 test F-score cur/max: 0.5259/0.5259
+[2026-04-20 23:45:11,163]  tvsum:1 Epoch: 3/10 test F-score cur/max: 0.5033/0.5259
+[2026-04-20 23:45:49,477]  tvsum:1 Epoch: 4/10 test F-score cur/max: 0.5286/0.5286
+[2026-04-20 23:46:29,448]  tvsum:1 Epoch: 5/10 test F-score cur/max: 0.5288/0.5288
+[2026-04-20 23:47:08,866]  tvsum:1 Epoch: 6/10 test F-score cur/max: 0.5084/0.5288
+[2026-04-20 23:47:47,884]  tvsum:1 Epoch: 7/10 test F-score cur/max: 0.5021/0.5288
+[2026-04-20 23:48:26,293]  tvsum:1 Epoch: 8/10 test F-score cur/max: 0.5055/0.5288
+[2026-04-20 23:49:02,592]  tvsum:1 Epoch: 9/10 test F-score cur/max: 0.4888/0.5288
+[2026-04-20 23:49:02,627] Start training on tvsum: split 2
+[2026-04-20 23:49:43,023]  tvsum:2 Epoch: 0/10 test F-score cur/max: 0.5433/0.5433
+[2026-04-20 23:50:23,248]  tvsum:2 Epoch: 1/10 test F-score cur/max: 0.5597/0.5597
+[2026-04-20 23:51:02,598]  tvsum:2 Epoch: 2/10 test F-score cur/max: 0.5657/0.5657
+[2026-04-20 23:51:43,453]  tvsum:2 Epoch: 3/10 test F-score cur/max: 0.5837/0.5837
+[2026-04-20 23:52:24,893]  tvsum:2 Epoch: 4/10 test F-score cur/max: 0.5347/0.5837
+[2026-04-20 23:53:04,962]  tvsum:2 Epoch: 5/10 test F-score cur/max: 0.5836/0.5837
+[2026-04-20 23:53:44,856]  tvsum:2 Epoch: 6/10 test F-score cur/max: 0.5695/0.5837
+[2026-04-20 23:54:25,538]  tvsum:2 Epoch: 7/10 test F-score cur/max: 0.5047/0.5837
+[2026-04-20 23:55:07,635]  tvsum:2 Epoch: 8/10 test F-score cur/max: 0.5945/0.5945
+[2026-04-20 23:55:49,998]  tvsum:2 Epoch: 9/10 test F-score cur/max: 0.5401/0.5945
+[2026-04-20 23:55:50,024] Start training on tvsum: split 3
+[2026-04-20 23:56:50,256]  tvsum:3 Epoch: 0/10 test F-score cur/max: 0.4935/0.4935
+[2026-04-20 23:58:00,893]  tvsum:3 Epoch: 1/10 test F-score cur/max: 0.4795/0.4935
+[2026-04-20 23:59:01,668]  tvsum:3 Epoch: 2/10 test F-score cur/max: 0.4834/0.4935
+[2026-04-21 00:00:02,272]  tvsum:3 Epoch: 3/10 test F-score cur/max: 0.4456/0.4935
+[2026-04-21 00:01:01,830]  tvsum:3 Epoch: 4/10 test F-score cur/max: 0.4590/0.4935
+[2026-04-21 00:01:59,260]  tvsum:3 Epoch: 5/10 test F-score cur/max: 0.4556/0.4935
+[2026-04-21 00:02:59,797]  tvsum:3 Epoch: 6/10 test F-score cur/max: 0.4333/0.4935
+[2026-04-21 00:04:01,413]  tvsum:3 Epoch: 7/10 test F-score cur/max: 0.4451/0.4935
+[2026-04-21 00:05:06,068]  tvsum:3 Epoch: 8/10 test F-score cur/max: 0.4200/0.4935
+[2026-04-21 00:06:08,446]  tvsum:3 Epoch: 9/10 test F-score cur/max: 0.4398/0.4935
+[2026-04-21 00:06:08,468] Start training on tvsum: split 4
+[2026-04-21 00:06:41,767]  tvsum:4 Epoch: 0/10 test F-score cur/max: 0.5147/0.5147
+[2026-04-21 00:07:17,373]  tvsum:4 Epoch: 1/10 test F-score cur/max: 0.5455/0.5455
+[2026-04-21 00:07:53,115]  tvsum:4 Epoch: 2/10 test F-score cur/max: 0.5803/0.5803
+[2026-04-21 00:08:30,542]  tvsum:4 Epoch: 3/10 test F-score cur/max: 0.5441/0.5803
+[2026-04-21 00:09:07,619]  tvsum:4 Epoch: 4/10 test F-score cur/max: 0.5572/0.5803
+[2026-04-21 00:09:42,489]  tvsum:4 Epoch: 5/10 test F-score cur/max: 0.5495/0.5803
+[2026-04-21 00:10:18,804]  tvsum:4 Epoch: 6/10 test F-score cur/max: 0.5744/0.5803
+[2026-04-21 00:10:55,649]  tvsum:4 Epoch: 7/10 test F-score cur/max: 0.5775/0.5803
+[2026-04-21 00:11:31,975]  tvsum:4 Epoch: 8/10 test F-score cur/max: 0.5429/0.5803
+[2026-04-21 00:12:08,850]  tvsum:4 Epoch: 9/10 test F-score cur/max: 0.5880/0.5880
+[2026-04-21 00:12:08,856] Training done on tvsum. F-score: 0.5449
